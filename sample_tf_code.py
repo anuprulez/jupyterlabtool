@@ -3,12 +3,12 @@
 
 (mnist_images, mnist_labels), _ = tf.keras.datasets.mnist.load_data()
 
+
 dataset = tf.data.Dataset.from_tensor_slices(
   (tf.cast(mnist_images[...,tf.newaxis]/255, tf.float32),
    tf.cast(mnist_labels,tf.int64)))
+
 dataset = dataset.shuffle(1000).batch(32)
-
-
 
 mnist_model = tf.keras.Sequential([
   tf.keras.layers.Conv2D(16,[3,3], activation='relu', # convoutional layer
@@ -17,11 +17,6 @@ mnist_model = tf.keras.Sequential([
   tf.keras.layers.GlobalAveragePooling2D(),
   tf.keras.layers.Dense(10) # output layer
 ])
-
-
-for images,labels in dataset.take(1):
-  print("Logits: ", mnist_model(images[0:1]).numpy())
-
 
 optimizer = tf.keras.optimizers.Adam()
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
@@ -41,13 +36,17 @@ def train_step(images, labels):
   loss_history.append(loss_value.numpy().mean())
   grads = tape.gradient(loss_value, mnist_model.trainable_variables)
   optimizer.apply_gradients(zip(grads, mnist_model.trainable_variables))
+  return np.mean(loss_history)
 
 
 def train(epochs):
+  tot_loss = []
   for epoch in range(epochs):
     for (batch, (images, labels)) in enumerate(dataset):
-      train_step(images, labels)
-    print ('Epoch {} finished'.format(epoch))
+      b_loss = train_step(images, labels)
+      tot_loss.append(b_loss)
+    #print ('Epoch {} finished'.format(epoch))
+  return np.mean(tot_loss)
     
-# Run training for 3 iterations
-train(epochs = 3)
+final_loss = train(epochs = 1)
+print(final_loss)
