@@ -1,14 +1,13 @@
 
 #import tensorflow as tf
 
-def train_step(images, labels, mnist_model):
+def train_step(images, labels, mnist_model, optimizer, loss_object):
   loss_history = []
   with tf.GradientTape() as tape:
     logits = mnist_model(images, training=True)
 
     # Add asserts to check the shape of the output.
     tf.debugging.assert_equal(logits.shape, (32, 10))
-
     loss_value = loss_object(labels, logits)
 
   loss_history.append(loss_value.numpy().mean())
@@ -17,7 +16,7 @@ def train_step(images, labels, mnist_model):
   return np.mean(loss_history)
 
 
-def train(epochs, dataset):
+def train(epochs, dataset, train_step):
 
   mnist_model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(16,[3,3], activation='relu', # convoutional layer
@@ -33,9 +32,8 @@ def train(epochs, dataset):
   tot_loss = []
   for epoch in range(epochs):
     for (batch, (images, labels)) in enumerate(dataset):
-      b_loss = train_step(images, labels, mnist_model)
+      b_loss = train_step(images, labels, mnist_model, optimizer, loss_object)
       tot_loss.append(b_loss)
-    #print ('Epoch {} finished'.format(epoch))
   return np.mean(tot_loss)
 
 (mnist_images, mnist_labels), _ = tf.keras.datasets.mnist.load_data()
@@ -43,5 +41,5 @@ def train(epochs, dataset):
 dataset = tf.data.Dataset.from_tensor_slices((tf.cast(mnist_images[...,tf.newaxis]/255, tf.float32), tf.cast(mnist_labels,tf.int64)))
 
 dataset = dataset.shuffle(1000).batch(32)
-final_loss = train(1, dataset)
+final_loss = train(1, dataset, train_step)
 print(final_loss)
