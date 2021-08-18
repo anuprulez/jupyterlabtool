@@ -1,6 +1,5 @@
 
 import numpy as np
-import h5py
 import tensorflow as tf
 
 
@@ -17,7 +16,6 @@ def train_step(images, labels, mnist_model, optimizer, loss_object):
 
 
 def train(epochs, dataset, train_step):
-
     tot_loss = []
     weights = None
 
