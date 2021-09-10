@@ -29,13 +29,12 @@ def train(epochs, dataset, train_step):
 
     optimizer = tf.keras.optimizers.Adam()
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-  
+
     for epoch in range(epochs):
         for (batch, (images, labels)) in enumerate(dataset):
             b_loss, mnist_model = train_step(images, labels, mnist_model, optimizer, loss_object)
             tot_loss.append(b_loss)
-    weights = mnist_model.get_weights()
-    return np.mean(tot_loss), weights
+    return mnist_model
 
 
 def rev_value():
@@ -44,4 +43,5 @@ def rev_value():
     dataset = dataset.shuffle(1000).batch(32)
     return train(1, dataset, train_step)
 
-loss, weights = rev_value()
+
+model = rev_value()
