@@ -7,6 +7,7 @@ import tensorflow as tf #for deep learning
 import os
 import glob
 
+
 rel_path = "/data/users/backup/anup/covid_images/CT_scans/"
 
 data = pd.read_csv(rel_path + 'metadata.csv')
@@ -17,8 +18,6 @@ data = pd.read_csv(rel_path + 'metadata.csv')
 
 def read_nii(filepath):
     print(filepath)
-    #all_files = glob.glob(filepath + "/*.nii")
-    #print(all_files[0])
     ct_scan = nib.load(filepath)
     array = ct_scan.get_fdata()
     array = np.rot90(np.array(array))
